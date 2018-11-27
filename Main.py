@@ -6,14 +6,16 @@ def main():
     posUnique = getUniqueWordsFromList("testPos.txt")
     negUnique = getUniqueWordsFromList("testNeg.txt")
 
-    total_word_list = posUnique.union(negUnique)
+    # total_word_list = posUnique.union(negUnique)
 
     posDict = getFreqOfWords("testPos.txt")
     negDict = getFreqOfWords("testNeg.txt")
 
-    posDataFrame = pd.DataFrame(list(posDict.items()), columns=['Word', 'Frequency'])
+    posDataFrame = pd.DataFrame(list(posDict.items()), columns=['Word', 'Positive Freq'])
+    negDataFrame = pd.DataFrame(list(negDict.items()), columns=['Word', 'Negative Freq'])
 
-    print(posDataFrame)
+    result = pd.merge(posDataFrame, negDataFrame, on='Word', how='outer')
+    print(result)
 
 
 def loadDataFromFile(name):

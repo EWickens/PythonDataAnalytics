@@ -1,65 +1,54 @@
-from collections import Counter
+import re
 import pandas as pd
 
 
 def main():
-    posUnique = getUniqueWordsFromList("trainPos.txt")
-    negUnique = getUniqueWordsFromList("trainNeg.txt")
+    posDict = getCleanedWordList("trainPos.txt")
+    negDict = getCleanedWordList("trainNeg.txt")
 
-    # total_word_list = posUnique.union(negUnique)
+    total_word_list = set()
+    total_word_list.update(posDict.keys(), negDict.keys())
 
-    posDict = getFreqOfWords("trainPos.txt")
-    negDict = getFreqOfWords("trainNeg.txt")
+    totalFreqDict = getFrequency(total_word_list, posDict, negDict)
 
-    posDataFrame = pd.DataFrame(list(posDict.items()), columns=['Word', 'Positive Freq'])
-    negDataFrame = pd.DataFrame(list(negDict.items()), columns=['Word', 'Negative Freq'])
-
-    #Merges the two dataframes to get a joined list with both positive and negative words.
-
-    result = pd.merge(posDataFrame, negDataFrame, on='Word', how='outer')
-
-    #Replaces the nulls with 0
-    result = result.fillna(0)
-
-    #Adds a third column to the dataframe which is the overall result of the word to determine if its classed as positive or negative.
-    result['Overall'] = result['Positive Freq'] + result['Negative Freq']
+    print(posDict)
 
 
-
-    result = calculateProbabilityOfWord(result)
-    print(result)
+# Processes the words and outputs a cleaned list
+def cleanWords(word_list):
+    good_words = re.compile("[^A-Za-z0-9]+")
+    return list(filter(lambda bad_word: not good_words.search(bad_word), word_list))
 
 
 def loadTestDataFromFile(name):
     dataFile = open("dataFiles/test/" + name, "r")
     return dataFile;
 
+
 def loadTrainingDataFromFile(name):
     dataFile = open("dataFiles/train/" + name, "r")
     return dataFile;
 
 
-
-def getUniqueWordsFromList(name):
-    data = loadTrainingDataFromFile(name)
-    vocab = set();
-
-    dataRead = data.read()
-    splitData = dataRead.split()
-
-    for word in splitData:
-        vocab.add(word)
-
-    return vocab;
-
 # Returns a dictionary with the individual words + Frequency at which they occur within the dataset
-def getFreqOfWords(name):
+def getCleanedWordList(name):
     data = loadTrainingDataFromFile(name)
-    dataRead = data.read()
 
-    dictionary = dict(Counter(dataRead.split()))
+    # Makes each word lowercase
+    dataRead = data.read().lower()
 
-    return dictionary;
+    dataSplit = dataRead.split()
+
+    cleaned_words = cleanWords(dataSplit)
+
+    dictionary = dict.fromkeys(set(cleaned_words), 0)
+
+    # Calculates the frequency of each word in the dataset.
+    for each in cleaned_words:
+        dictionary[each] += 1
+
+    return dictionary
+
 
 def calculateProbabilityOfWord(result):
     result['PosProb'] = result['Positive Freq'] / result['Overall']
@@ -67,13 +56,25 @@ def calculateProbabilityOfWord(result):
 
     return result
 
-def detProbOfTweet(result):
+
+def getFrequency(total_word_list, posDictionary, negDictionary):
+    genOccurenceDict = dict.fromkeys(total_word_list, 0)
+
+    for each in genOccurenceDict.keys():
+        if each in posDictionary.keys():
+            genOccurenceDict[each] += posDictionary[each]
+        if each in negDictionary.keys():
+            genOccurenceDict[each] += negDictionary[each]
+
+    return genOccurenceDict
+
+
+def detProbOfTweet():
     negTestSet = loadTestDataFromFile("testNeg")
     posTestSet = loadTestDataFromFile("testPos")
 
     negLines = negTestSet.readlines()
     posLines = posTestSet.readLines()
-
 
 
 main()

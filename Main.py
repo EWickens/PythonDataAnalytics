@@ -11,8 +11,8 @@ def main():
 
     totalFreqDict = getFrequency(total_word_list, posDict, negDict)
 
-    print(posDict)
-
+    posProb = calculateProbabilityOfWord(totalFreqDict, posDict)
+    negProb = calculateProbabilityOfWord(totalFreqDict, negDict)
 
 # Processes the words and outputs a cleaned list
 def cleanWords(word_list):
@@ -29,6 +29,11 @@ def loadTrainingDataFromFile(name):
     dataFile = open("dataFiles/train/" + name, "r")
     return dataFile;
 
+def loadTweetsFromFile(name):
+    dataFile = loadTestDataFromFile(name)
+    testData = dataFile.read().splitlines()
+
+    return testData
 
 # Returns a dictionary with the individual words + Frequency at which they occur within the dataset
 def getCleanedWordList(name):
@@ -50,12 +55,30 @@ def getCleanedWordList(name):
     return dictionary
 
 
-def calculateProbabilityOfWord(result):
-    result['PosProb'] = result['Positive Freq'] / result['Overall']
-    result['NegProb'] = result['Negative Freq'] / result['Overall']
+def getProbabilityOfTweet(negProb, posProb):
+    posTweetLines = loadTweetsFromFile("testPos")
+    negTweetLines = loadTweetsFromFile("testNeg")
 
-    return result
+    posTweetCounter = 0
+    negTweetCounter = 0
 
+    posClassDictionary = dict.fromkeys(posTweetLines)
+    negClassDictionary = dict.fromkeys(negTweetLines)
+
+    for line in negTweetLines: # For each tweet
+        cleaned_tweet = cleanWords(line.split()) # Cleans tweet to compare it with cleaned words.
+
+        for word in cleaned_tweet: # For each word
+
+            if word in posProb.keys(): # if word is in the positive dictionary
+                posTweetLines[line] *= posProb[word] # multiply the value of the tweet by the value of the word
+            if word in negProb.keys():# if word is in the positive dictionary
+                negTweetLines[line] *= negProb[word] # multiply the value of the tweet by the value of the word
+
+    if posTweetLines[line] >= negTweetLines[line]:
+        posTweetCounter += 1
+    else:
+        negTweetCounter += 1
 
 def getFrequency(total_word_list, posDictionary, negDictionary):
     genOccurenceDict = dict.fromkeys(total_word_list, 0)
@@ -69,12 +92,14 @@ def getFrequency(total_word_list, posDictionary, negDictionary):
     return genOccurenceDict
 
 
-def detProbOfTweet():
-    negTestSet = loadTestDataFromFile("testNeg")
-    posTestSet = loadTestDataFromFile("testPos")
+def calculateProbabilityOfWord(totalFreqDictionary, dictionary):
+    probabilityDictionary = dict.fromkeys(totalFreqDictionary, 0)
 
-    negLines = negTestSet.readlines()
-    posLines = posTestSet.readLines()
+    for each in probabilityDictionary:
+        if each in dictionary.keys():
+            probabilityDictionary[each] = dictionary[each] / totalFreqDictionary[each]
+
+    return probabilityDictionary
 
 
 main()

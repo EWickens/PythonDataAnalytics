@@ -45,8 +45,10 @@ def remove_stopwords(good_words):
 
     return better_words
 
+
 def getNgrams(better_words):
     return ngrams(better_words, 2)
+
 
 # def check_tweet_for_ngrams(tweets, ngrams):
 #     occurence = 0
@@ -91,7 +93,7 @@ def getCleanedWordList(name):
     for each in cleaned_words:
         dictionary[each] += 1
 
-    return [dictionary,ngrams]
+    return [dictionary, ngrams]
 
 
 def clean_string(string):
@@ -104,77 +106,26 @@ def getProbabilityOfTweet(posProb, negProb, filename):
     posTweetCounter = 0
     negTweetCounter = 0
 
-    posWordProb = 0
-    negWordProb = 0
+    posWordProb = 1
+    negWordProb = 1
 
     for tweet in data_set:
         clean_tweet = clean_string(tweet.lower())
 
         for word in clean_tweet.split():
             if word in posProb:
-                posWordProb = posProb[word]
+                posWordProb = posWordProb * posProb[word]
+                print(posWordProb)
             if word in negProb:
-                negWordProb = negProb[word]
+                negWordProb = negWordProb * negProb[word]
 
+        print("")
         if posWordProb > negWordProb:
             posTweetCounter += 1
         else:
             negTweetCounter += 1
 
     return [posTweetCounter, negTweetCounter]
-
-
-# def getProbabilityOfTweet(posProb, negProb):
-#     tweets = loadTweetsFromFile("testPos.txt")
-#     # negTweetProbLines = loadTweetsFromFile("testNeg.txt")
-#     print(len(tweets))
-#     posTweetCounter = 0
-#     negTweetCounter = 0
-#
-#     posClassDictionary = dict.fromkeys(tweets, 1)
-#     negClassDictionary = dict.fromkeys(tweets, 1)
-#
-#     for line in tweets:  # For each tweet
-#
-#         for word in line:  # For each word
-#             word = clean_string(word.lower())  # Cleans tweet to compare it with cleaned words.
-#             if word in posProb.keys():  # if word is in the positive dictionary
-#                 posClassDictionary[line] = posClassDictionary[line] * posProb[word]  # multiply the value of the tweet by the value of the word
-#                 # print(posClassDictionary[line])
-#             if word in negProb.keys():  # if word is in the positive dictionary
-#                 negClassDictionary[line] = negClassDictionary[line] * negProb[word]  # multiply the value of the tweet by the value of the word
-#                 # print(negClassDictionary[line])
-#
-#         # print(negClassDictionary[line])
-#         if posClassDictionary[line] > negClassDictionary[line]:
-#             posTweetCounter += 1
-#         else:
-#             negTweetCounter += 1
-#
-#     print(posTweetCounter)
-#     print(negTweetCounter)
-
-
-# def getSingleTweetProb(line, posProb, negProb, posClassDictionary, negClassDictionary):
-#     posTweetCounter = 0
-#     negTweetCounter = 0
-#
-#     for word in line:  # For each word
-#         word = clean_string(word.lower())  # Cleans tweet to compare it with cleaned words.
-#         if word in posProb.keys():  # if word is in the positive dictionary
-#             posClassDictionary[line] = posClassDictionary[line] * posProb[word]  # multiply the value of the tweet by the value of the word
-#             # print(posClassDictionary[line])
-#         if word in negProb.keys():  # if word is in the positive dictionary
-#             negClassDictionary[line] = negClassDictionary[line] * negProb[word]  # multiply the value of the tweet by the value of the word
-#             # print(negClassDictionary[line])
-#
-#     # print(negClassDictionary[line])
-#     if posClassDictionary[line] > negClassDictionary[line]:
-#         posTweetCounter += 1
-#     else:
-#         negTweetCounter += 1
-#
-#     return [posTweetCounter, negTweetCounter]
 
 
 def getFrequency(total_word_list, posDictionary, negDictionary):
@@ -193,9 +144,11 @@ def calculateProbabilityOfWord(totalFreqDictionary, dictionary):  # WORKING AS I
     probabilityDictionary = dict.fromkeys(totalFreqDictionary, 0)
 
     for each in probabilityDictionary:
-        if each in dictionary.keys():
-            probabilityDictionary[each] = dictionary[each] / totalFreqDictionary[each]
-
+        if each not in dictionary:
+            # probabilityDictionary[each] = dictionary[each] / totalFreqDictionary[each]
+            probabilityDictionary[each] = 1 / (len(dictionary) + totalFreqDictionary[each])
+        else:
+            probabilityDictionary[each] = (dictionary[each]+1/(dictionary[each] + totalFreqDictionary[each]))
     return probabilityDictionary
 
 

@@ -28,6 +28,9 @@ def main():
     print(negativeTweetResults[1])
 
 
+
+
+
 # Processes the words and outputs a cleaned list
 def cleanWords(word_list):
     good_words = re.compile("[^A-Za-z0-9]+")
@@ -111,10 +114,10 @@ def getProbabilityOfTweet(posProb, negProb, filename):
         clean_tweet = clean_string(tweet.lower())
 
         for word in clean_tweet.split():
-            if word in posProb:
-                posWordProb = posProb[word]
-            if word in negProb:
-                negWordProb = negProb[word]
+            if word in posProb.keys():
+                posWordProb += posProb[word]
+            if word in negProb.keys():
+                negWordProb += negProb[word]
 
         if posWordProb > negWordProb:
             posTweetCounter += 1
@@ -180,11 +183,11 @@ def getProbabilityOfTweet(posProb, negProb, filename):
 def getFrequency(total_word_list, posDictionary, negDictionary):
     genOccurenceDict = dict.fromkeys(total_word_list, 0)
 
-    for each in genOccurenceDict.keys():
-        if each in posDictionary.keys():
-            genOccurenceDict[each] += posDictionary[each]
-        if each in negDictionary.keys():
-            genOccurenceDict[each] += negDictionary[each]
+    for word in genOccurenceDict.keys():
+        if word in posDictionary.keys():
+            genOccurenceDict[word] += posDictionary[word]
+        if word in negDictionary.keys():
+            genOccurenceDict[word] += negDictionary[word]
 
     return genOccurenceDict
 

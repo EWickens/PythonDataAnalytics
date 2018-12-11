@@ -6,10 +6,10 @@ import time
 
 
 def main():
+    start = time.time()
+
     posDict = getCleanedWordList("trainPos.txt")[0]
-    # posNgrams = getCleanedWordList("trainPos.txt")[1]
     negDict = getCleanedWordList("trainNeg.txt")[0]
-    # negNgrams = getCleanedWordList("trainNeg.txt")[1]
 
     total_word_list = set()
     total_word_list.update(posDict.keys(), negDict.keys())
@@ -22,7 +22,7 @@ def main():
     positiveTweetResults = getProbabilityOfTweet(posProb, negProb, "testPos.txt")
     negativeTweetResults = getProbabilityOfTweet(posProb, negProb, "testNeg.txt")
 
-    calculateAccuracy(positiveTweetResults, negativeTweetResults)
+    calculateAccuracy(positiveTweetResults, negativeTweetResults, start)
 
 
 def remove_stopwords(good_words):
@@ -37,13 +37,6 @@ def remove_stopwords(good_words):
 
 def getNgrams(better_words):
     return ngrams(better_words, 2)
-
-
-# def check_tweet_for_ngrams(tweets, ngrams):
-#     occurence = 0
-#     for each in tweets:
-#         if ngrams in each:
-#
 
 def loadTestDataFromFile(name):
     dataFile = open("dataFiles/test/" + name, "r")
@@ -76,8 +69,6 @@ def getCleanedWordList(name):
 
     for each in dataSplit:
         cleaned_words.append(clean_string(each))
-
-    ngrams = getNgrams(cleaned_words)
 
     dictionary = dict.fromkeys(set(cleaned_words), 0)
 
@@ -120,15 +111,15 @@ def getProbabilityOfTweet(posProb, negProb, filename):
 
 
 def getFrequency(total_word_list, posDictionary, negDictionary):
-    genOccurenceDict = dict.fromkeys(total_word_list, 0)
+    genOccurrenceDict = dict.fromkeys(total_word_list, 0)
 
-    for each in genOccurenceDict.keys():
+    for each in genOccurrenceDict.keys():
         if each in posDictionary.keys():
-            genOccurenceDict[each] += posDictionary[each]
+            genOccurrenceDict[each] += posDictionary[each]
         if each in negDictionary.keys():
-            genOccurenceDict[each] += negDictionary[each]
+            genOccurrenceDict[each] += negDictionary[each]
 
-    return genOccurenceDict
+    return genOccurrenceDict
 
 
 def calculateProbabilityOfWord(totalFreqDictionary, dictionary):  # WORKING AS INTENDED
@@ -144,10 +135,12 @@ def calculateProbabilityOfWord(totalFreqDictionary, dictionary):  # WORKING AS I
     return probabilityDictionary
 
 
-def calculateAccuracy(positiveTweetResults, negativeTweetResults):
+def calculateAccuracy(positiveTweetResults, negativeTweetResults, start):
+    print("Time taken to complete in seconds: " + str((time.time() - start)))
+
     totalAVG = ((positiveTweetResults[0] + negativeTweetResults[1]) / 2) / 10
 
-    print("Positive Test Data: ")
+    print("\nPositive Test Data: ")
     print("\tPositive Accuracy: " + str(positiveTweetResults[0] / 10) + "%")
     print("\tNegative Accuracy: " + str(positiveTweetResults[1] / 10) + "%\n")
 

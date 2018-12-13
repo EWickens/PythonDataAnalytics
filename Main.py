@@ -1,3 +1,7 @@
+# Eoin Wickens
+# Student Number: R00151204
+# Email: eoin.wickens@mycit.ie
+
 import re  # Regex Import
 from nltk.corpus import stopwords  # Stopwords list import
 from nltk import ngrams  # ngrams import
@@ -173,6 +177,7 @@ def getProbabilityOfTweet(posProb, negProb, filename, clean):
 def getFrequency(total_word_list, posDictionary, negDictionary):
     genOccurrenceDict = dict.fromkeys(total_word_list, 0)
 
+    print("Total Words: " + str(len(total_word_list)))
     # For each word in the dictionary of every word
     for each in genOccurrenceDict.keys():
         if each in posDictionary.keys():
